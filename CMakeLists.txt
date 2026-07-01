@@ -36,6 +36,8 @@ target_sources(${PROJECT_NAME}
 	PRIVATE src/imgui/implot3d_items.cpp
 	PRIVATE src/imgui/implot3d_meshes.cpp
 
+	PRIVATE src/imgui/imnodes.cpp
+
 	PRIVATE src/glad/gl.cpp
 )
 

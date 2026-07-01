@@ -31,6 +31,31 @@ void frame::imgui_window(core::sdl_event_ctx &ctx){
 	ImPlot::ShowDemoWindow();
 	ImPlot3D::ShowDemoWindow();
 
+	if(ImGui::Begin("NodeEditor")){
+		ImNodes::BeginNodeEditor();
+
+		ImNodes::BeginNode(1);
+
+		ImNodes::BeginNodeTitleBar();
+		ImGui::Text("node");
+		ImNodes::EndNodeTitleBar();
+
+		ImNodes::BeginInputAttribute(2);
+		ImGui::Text("in");
+		ImNodes::EndInputAttribute();
+
+		ImGui::SameLine();
+
+		ImNodes::BeginOutputAttribute(3);
+		ImGui::Text("out");
+		ImNodes::EndOutputAttribute();
+
+		ImNodes::EndNode();
+
+		ImNodes::EndNodeEditor();
+	}
+	ImGui::End();
+
 }
 
 void frame::handle_events(core::sdl_event_ctx &ctx){

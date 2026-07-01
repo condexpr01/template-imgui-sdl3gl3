@@ -8,6 +8,7 @@
 #include "imgui_impl_sdl3.h"
 #include "implot.h"
 #include "implot3d.h"
+#include "imnodes.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_opengl.h>
@@ -123,6 +124,7 @@ namespace core{
 			ImGuiContext *imgui_ctx = nullptr;
 			ImPlotContext *implot_ctx = nullptr;
 			ImPlot3DContext *implot3d_ctx = nullptr;
+			ImNodesContext *imnodes_ctx = nullptr;
 
 			ImFont* font = nullptr;
 			const float fontsize = 18.f;
@@ -133,8 +135,9 @@ namespace core{
 				imgui_ctx = ImGui::CreateContext();
 				implot_ctx = ImPlot::CreateContext();
 				implot3d_ctx = ImPlot3D::CreateContext();
+				imnodes_ctx = ImNodes::CreateContext();
 
-				if (!imgui_ctx || !implot_ctx || !implot3d_ctx){
+				if (!imgui_ctx || !implot_ctx || !implot3d_ctx || !imnodes_ctx){
 					status = false;
 					reason = "[sdl_gl_imgui_ctx_manager]CreateContext";
 					return;
@@ -180,6 +183,7 @@ namespace core{
 				ImGui::DestroyContext(imgui_ctx);
 				ImPlot::DestroyContext(implot_ctx);
 				ImPlot3D::DestroyContext(implot3d_ctx);
+				ImNodes::DestroyContext(imnodes_ctx);
 			}
 
 			//neither movable nor copyable

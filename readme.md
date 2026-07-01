@@ -13,3 +13,4 @@
 > imgui(branch: docking): MIT    
 > implot: MIT    
 > implot3d: MIT    
+> imnodes: MIT
