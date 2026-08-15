@@ -14,3 +14,4 @@
 > implot: MIT    
 > implot3d: MIT    
 > imnodes: MIT
+> stb: MIT

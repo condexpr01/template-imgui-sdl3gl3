@@ -4,6 +4,7 @@
 #include "glad/gl.hpp"
 
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl3.h"
 #include "implot.h"
@@ -14,9 +15,28 @@
 #include <SDL3/SDL_opengl.h>
 
 #include <filesystem>
-#include <format>
+
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
+#include <vector>
+
+#include "core_types.hpp"
+#include "camera.hpp"
+#include "keyboard.hpp"
+#include "program.hpp"
+#include "texture.hpp"
+#include "shader.hpp"
+#include "vertex-array.hpp"
+#include "framebuffer.hpp"
+#include "renderbuffer.hpp"
 
 namespace core{
+
+	#define GLVERTEX_posT   GL_FLOAT
+	#define GLVERTEX_colorT GL_UNSIGNED_BYTE
+	using glposition = core::position<GLfloat>;
+	using glvertex = core::vertex<GLfloat,GLubyte>;
 
 	//manage sdl init/quit context
 	class sdl_ctx_manager{
@@ -25,7 +45,7 @@ namespace core{
 			bool status = false;
 			const char* reason = nullptr;
 
-		//get error status methos
+		//get error status methods
 		public:
 			bool       is_ok() noexcept{return status;}
 			const char* what() noexcept{return reason;}
@@ -56,7 +76,7 @@ namespace core{
 			bool status = false;
 			const char* reason = nullptr;
 
-		//get error status methos
+		//get error status methods
 		public:
 			bool       is_ok() noexcept{return status;}
 			const char* what() noexcept{return reason;}
@@ -67,6 +87,7 @@ namespace core{
 
 		//methods
 		public:
+
 			void create(SDL_Window *window) noexcept{
 				if (gl_ctx){release();}
 
@@ -94,6 +115,7 @@ namespace core{
 			}
 
 			void release() noexcept{if(gl_ctx){SDL_GL_DestroyContext(gl_ctx);}}
+
 
 		//RAII
 		public:
@@ -129,6 +151,9 @@ namespace core{
 			ImFont* font = nullptr;
 			const float fontsize = 18.f;
 
+			ImFont* font_bold_large = nullptr;
+			ImFont* font_bold = nullptr;
+
 		//RAII
 		public:
 			sdl3_gl3_imgui_ctx_manager(SDL_Window *glwindow,SDL_GLContext glctx) noexcept{
@@ -137,7 +162,11 @@ namespace core{
 				implot3d_ctx = ImPlot3D::CreateContext();
 				imnodes_ctx = ImNodes::CreateContext();
 
-				if (!imgui_ctx || !implot_ctx || !implot3d_ctx || !imnodes_ctx){
+				if (!imgui_ctx 
+						//|| !implot_ctx 
+						//|| !implot3d_ctx 
+						//|| !imnodes_ctx
+				   ){
 					status = false;
 					reason = "[sdl_gl_imgui_ctx_manager]CreateContext";
 					return;
@@ -158,10 +187,8 @@ namespace core{
 				status = true;
 
 				//default font
-				std::filesystem::path font_path{std::format(
-						"{:s}/fonts/SarasaUiSC-Bold.ttf",
-						SDL_GetBasePath())
-				};
+				std::filesystem::path font_path = std::filesystem::path{SDL_GetBasePath()}
+					/ "fonts"/ "SarasaUiSC-Bold.ttf";
 
 				ImFontConfig f{};
 				f.Flags = ImFontFlags_NoLoadError;
@@ -169,6 +196,10 @@ namespace core{
 				ImGuiIO &io = ImGui::GetIO();
 				if (std::filesystem::exists(font_path)){
 					font = (*io.Fonts).AddFontFromFileTTF(font_path.c_str(),fontsize,&f,nullptr);
+
+					font_bold = (*io.Fonts).AddFontFromFileTTF(font_path.c_str(),fontsize + 3,&f,nullptr);
+					font_bold_large = (*io.Fonts).AddFontFromFileTTF(font_path.c_str(),fontsize + 6,&f,nullptr);
+
 					io.FontDefault = font;
 				}
 
@@ -205,7 +236,6 @@ namespace core{
 		//res
 		public:
 			SDL_Window *window = nullptr;
-			size_t w{},h{};
 
 		//methods
 		public:
@@ -213,9 +243,26 @@ namespace core{
 			bool hide() noexcept{return SDL_HideWindow(window);}
 			SDL_WindowFlags flags() noexcept{return SDL_GetWindowFlags(window);}
 
+			GLboolean attributes(){
+				return SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,24)
+					&& SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,8)
+					&& SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8)
+					&& SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8)
+					&& SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8)
+					&& SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8)
+					&& SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
+			}
+
 		//RAII
 		public:
 			sdl_window_manager(const char* title, int w, int h, SDL_WindowFlags flags) noexcept{
+
+				if(!attributes()){
+					status = false;
+					reason = "[sdl_window_manager] SDL_GL_SetAttribute";
+					return;
+				}
+
 				if (!window){window = SDL_CreateWindow(title,w,h,flags);}
 
 				if (!window){
@@ -229,6 +276,13 @@ namespace core{
 			}
 
 			sdl_window_manager() noexcept{
+
+				if(!attributes()){
+					status = false;
+					reason = "[sdl_window_manager] SDL_GL_SetAttribute";
+					return;
+				}
+
 				int denominator = 2;
 
 				SDL_DisplayID did = SDL_GetPrimaryDisplay();
@@ -268,10 +322,35 @@ namespace core{
 		SDL_Event e;
 		bool running = false;
 
+		//ctx managers
 		sdl_window_manager &swm;
 		sdl_gl_ctx_manager &sgcm;
 		sdl3_gl3_imgui_ctx_manager &sgicm;
+
+		//datas
+		std::filesystem::path png_path;
+
+		//kbd
+		core::keyboard keyboard{};
+
+		//MVP
+		glm::mat4 model{1.f};
+		core::camera camera{};
+		glm::mat4 projection{1.f};
+
 	};
+
+	inline void set_up_sdl_event_ctx_datas(int argc, char **argv, sdl_event_ctx &ctx){
+
+		#if 0
+		if (argc < 2){
+			throw std::runtime_error{
+				"args: "
+			};
+		}
+		#endif
+
+	}
 
 	class sdl_event_manager{
 		//res

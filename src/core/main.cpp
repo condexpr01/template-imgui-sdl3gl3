@@ -1,11 +1,13 @@
 #include "core.hpp"
 
 //manager layer
-void app(){
+void app(int argc, char **argv){
+	//SDL_SetHint(SDL_HINT_VIDEO_DRIVER,"offscreen");
+
 	core::sdl_ctx_manager scm{};
 	if(!scm.is_ok()){throw std::runtime_error{scm.what()};}
 
-	core::sdl_window_manager swm{};
+	core::sdl_window_manager swm{"",1024,1024,SDL_WINDOW_OPENGL};
 	if(!swm.is_ok()){throw std::runtime_error{swm.what()};}
 
 	core::sdl_gl_ctx_manager sgcm{swm.window};
@@ -15,12 +17,14 @@ void app(){
 	if(!sgicm.is_ok()){throw std::runtime_error{sgicm.what()};}
 
 	core::sdl_event_manager sem{swm,sgcm,sgicm};
+	core::set_up_sdl_event_ctx_datas(argc,argv,sem.get_ctx());
+
 	sem.loop();
 	if(!sem.is_ok()){throw std::runtime_error{sem.what()};}
 }
 
-int main(int argc, char** argv) try{
-	app();
+int main(int argc, char **argv) try{
+	app(argc,argv);
 
 	return 0;
 }

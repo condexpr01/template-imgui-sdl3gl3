@@ -1,8 +1,7 @@
 all:
-	cmake -B build -G Ninja && cmake --build build
+	-cmake -B build -G Ninja && cmake --build build
 	-cp build/compile_commands.json src/core
 	-cp build/compile_commands.json src/imgui
-	-cp fonts build -r
 
 clean:
 	-rm -rf build
@@ -15,4 +14,4 @@ clean:
 	-rm -rf src/core/compile_commands.json
 
 run:
-	./build/template
+	./build/prog
