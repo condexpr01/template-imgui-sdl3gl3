@@ -1,5 +1,5 @@
-#ifndef CORE_HEADER_TEXTURE_GUARD
-#define CORE_HEADER_TEXTURE_GUARD
+#ifndef CORE_HEADER_GL_TEXTURE_GUARD
+#define CORE_HEADER_GL_TEXTURE_GUARD
 
 #include "glad/gl.hpp"
 #include <SDL3/SDL.h>
@@ -11,7 +11,7 @@ namespace core{
 		//error status
 		private:
 			GLboolean status = GL_FALSE;
-			GLchar *reason = nullptr;
+			const GLchar* reason;
 
 		private:
 			GLuint texture_id = 0;
@@ -20,7 +20,7 @@ namespace core{
 		//get error status methods
 		public:
 			GLboolean is_ok() noexcept{return status;}
-			GLchar*    what() noexcept{return reason;}
+			const GLchar* what() noexcept{return reason;}
 
 		//methods
 		public:
@@ -65,6 +65,15 @@ namespace core{
 				unbind();
 			}
 
+			void sub_image1d(GLint level,
+					GLint xoffset,GLsizei width,
+					GLenum format, GLenum type, const void *pixels)noexcept{
+
+				bind();
+				glTexSubImage1D(target,level,xoffset,width,format,type,pixels);
+				unbind();
+			}
+
 			//2d
 			void image2d(GLint level,GLenum internalformat,
 					GLsizei width,GLsizei height,GLint border,
@@ -72,6 +81,15 @@ namespace core{
 
 				bind();
 				glTexImage2D(target,level,internalformat,width,height,border,format,type,pixels);
+				unbind();
+			}
+
+			void sub_image2d(GLint level,
+					GLint xoffset, GLint yoffset,
+					GLsizei width,GLsizei height,
+					GLenum format, GLenum type, const void *pixels)noexcept{
+				bind();
+				glTexSubImage2D(target,level,xoffset,yoffset,width,height,format,type,pixels);
 				unbind();
 			}
 
@@ -85,36 +103,31 @@ namespace core{
 				unbind();
 			}
 
-			//sdl3 load png
-			void png_image2d(const char* filepath)noexcept{
-				SDL_Surface *texture_surface = SDL_LoadPNG(filepath);
-				if (!texture_surface){
-					SDL_Log("[png_image2d] %s",SDL_GetError());
-					return;
-				}
+			void sub_image3d(GLint level,
+					GLint xoffset, GLint yoffset, GLint zoffset,
+					GLsizei width,GLsizei height,GLsizei depth,GLint border,
+					GLenum format, GLenum type, const void *pixels)noexcept{
 
-				//SDL_PIXELFORMAT32会自己调整和字节序匹配
-				if (texture_surface->format != SDL_PIXELFORMAT_RGBA32){
-					texture_surface = SDL_ConvertSurface(texture_surface,SDL_PIXELFORMAT_RGBA32);
-				}
-
-				image2d(0,GL_RGBA,texture_surface->w,texture_surface->h,0,
-						GL_RGBA,GL_UNSIGNED_BYTE,(*texture_surface).pixels);
-
-				SDL_free(texture_surface);
+				bind();
+				glTexSubImage3D(target,level,xoffset,yoffset,zoffset,
+						width,height,depth,format,type,pixels);
+				unbind();
 			}
 
-			//sdl load png and use specified target
-			void png_image2d_with_target(const char* filepath, GLuint target)noexcept{
+			//sdl3 load png
+			void png_image2d_with_target(const char* filepath, GLuint target = 0)noexcept{
 				SDL_Surface *texture_surface = SDL_LoadPNG(filepath);
 				if (!texture_surface){
-					SDL_Log("[png_image2d] %s",SDL_GetError());
+					status = GL_FALSE;
+					reason = "[png_image2d] SDL_LoadPNG";
 					return;
 				}
 
 				//SDL_PIXELFORMAT32会自己调整和字节序匹配
 				if (texture_surface->format != SDL_PIXELFORMAT_RGBA32){
+					SDL_Surface *old_texture_surface = texture_surface;
 					texture_surface = SDL_ConvertSurface(texture_surface,SDL_PIXELFORMAT_RGBA32);
+					SDL_free(old_texture_surface);
 				}
 
 				bind();
@@ -123,7 +136,7 @@ namespace core{
 						GL_RGBA,GL_UNSIGNED_BYTE,(*texture_surface).pixels);
 				unbind();
 
-				SDL_free(texture_surface);
+				SDL_DestroySurface(texture_surface);
 			}
 
 			void parameteri(GLint pname, GLint param) noexcept{
@@ -155,7 +168,6 @@ namespace core{
 				other.texture_id = 0;
 				other.target = 0;
 				other.status = GL_FALSE;
-				other.reason = nullptr;
 			}
 
 		//RAII
@@ -163,7 +175,6 @@ namespace core{
 			texture(GLenum target) noexcept{
 				glGenTextures(1,&texture_id);
 				status = GL_FALSE;
-				reason = nullptr;
 				(*this).target = target;
 			}
 			//防止重复析构

@@ -1,6 +1,8 @@
 #ifndef CORE_HEADER_TYPES_GUARD
 #define CORE_HEADER_TYPES_GUARD
 
+#include "glad/gl.hpp"
+
 namespace core {
 
 	template <typename posT>
@@ -22,6 +24,9 @@ namespace core {
 		color<colorT> color;
 	};
 
-
+	#define GLVERTEX_posT   GL_FLOAT
+	#define GLVERTEX_colorT GL_UNSIGNED_BYTE
+	using glposition = core::position<GLfloat>;
+	using glvertex = core::vertex<GLfloat,GLubyte>;
 }
 #endif

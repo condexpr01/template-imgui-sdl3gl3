@@ -1,5 +1,5 @@
-#ifndef CORE_HEADER_SHADER_GUARD
-#define CORE_HEADER_SHADER_GUARD
+#ifndef CORE_HEADER_GL_SHADER_GUARD
+#define CORE_HEADER_GL_SHADER_GUARD
 
 #include "glad/gl.hpp"
 

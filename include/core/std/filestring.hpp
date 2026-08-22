@@ -9,7 +9,7 @@ namespace core{
 	using std::ifstream;
 	using std::string;
 
-	//将提供的文件读到字符串堆内
+	//load file to string
 	class filestring{
 
 		//error status

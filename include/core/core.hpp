@@ -10,6 +10,7 @@
 #include "implot.h"
 #include "implot3d.h"
 #include "imnodes.h"
+#include "imgui_toggle.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_opengl.h>
@@ -21,22 +22,27 @@
 
 #include <vector>
 
-#include "core_types.hpp"
-#include "camera.hpp"
-#include "keyboard.hpp"
-#include "program.hpp"
-#include "texture.hpp"
-#include "shader.hpp"
-#include "vertex-array.hpp"
-#include "framebuffer.hpp"
-#include "renderbuffer.hpp"
+#include "core-types.hpp"
+#include "gl-camera.hpp"
+#include "gl-program.hpp"
+#include "gl-texture.hpp"
+#include "gl-shader.hpp"
+#include "gl-vertex-array.hpp"
+#include "gl-framebuffer.hpp"
+#include "gl-renderbuffer.hpp"
+
+#include "sdl-keyboard.hpp"
+#include "sdl-audio.hpp"
+#include "sdl-camera.hpp"
+#include "sdl-event.hpp"
+#include "sdl-hints.hpp"
+#include "sdl-init.hpp"
+#include "sdl-time.hpp"
+#include "sdl-video.hpp"
+
+#include "romfs/romfs.hpp"
 
 namespace core{
-
-	#define GLVERTEX_posT   GL_FLOAT
-	#define GLVERTEX_colorT GL_UNSIGNED_BYTE
-	using glposition = core::position<GLfloat>;
-	using glvertex = core::vertex<GLfloat,GLubyte>;
 
 	//manage sdl init/quit context
 	class sdl_ctx_manager{
@@ -151,9 +157,6 @@ namespace core{
 			ImFont* font = nullptr;
 			const float fontsize = 18.f;
 
-			ImFont* font_bold_large = nullptr;
-			ImFont* font_bold = nullptr;
-
 		//RAII
 		public:
 			sdl3_gl3_imgui_ctx_manager(SDL_Window *glwindow,SDL_GLContext glctx) noexcept{
@@ -191,21 +194,31 @@ namespace core{
 					/ "fonts"/ "SarasaUiSC-Bold.ttf";
 
 				ImFontConfig f{};
-				f.Flags = ImFontFlags_NoLoadError;
+				//f.Flags = ImFontFlags_NoLoadError;
+				f.FontDataOwnedByAtlas = false;
 
 				ImGuiIO &io = ImGui::GetIO();
-				if (std::filesystem::exists(font_path)){
-					font = (*io.Fonts).AddFontFromFileTTF(font_path.c_str(),fontsize,&f,nullptr);
 
-					font_bold = (*io.Fonts).AddFontFromFileTTF(font_path.c_str(),fontsize + 3,&f,nullptr);
-					font_bold_large = (*io.Fonts).AddFontFromFileTTF(font_path.c_str(),fontsize + 6,&f,nullptr);
+				#if 0
+				const romfs::Resource &ttf = romfs::get("fonts/SarasaUiSC-Bold.ttf");
+				if(ttf.data()){
+					font = (*io.Fonts).AddFontFromMemoryTTF(
+						(void*)ttf.data(),ttf.size(),
+						fontsize,&f,nullptr
+					);
 
 					io.FontDefault = font;
 				}
+				#else
+				if (std::filesystem::exists(font_path)){
+					font = (*io.Fonts).AddFontFromFileTTF(font_path.c_str(),fontsize,&f,nullptr);
+					io.FontDefault = font;
+				}
+				#endif
 
 				io.IniFilename = nullptr;
-				io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 				io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+				//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 			}
 
 			~sdl3_gl3_imgui_ctx_manager() noexcept{
@@ -333,10 +346,19 @@ namespace core{
 		//kbd
 		core::keyboard keyboard{};
 
+		//audio
+		core::realtime_audio realtime_audio{};
+		core::callback_on_time_audio callback_on_time_audio{};
+		core::recording_audio recording_audio{};
+
+		//capture
+		core::texture frame_tex{GL_TEXTURE_2D};
+		core::capture_device capture_device{};
+
 		//MVP
-		glm::mat4 model{1.f};
-		core::camera camera{};
-		glm::mat4 projection{1.f};
+		//glm::mat4 model{1.f};
+		//core::camera camera{};
+		//glm::mat4 projection{1.f};
 
 	};
 

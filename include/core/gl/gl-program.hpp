@@ -1,8 +1,8 @@
-#ifndef CORE_HEADER_PROGRAM_GUARD
-#define CORE_HEADER_PROGRAM_GUARD
+#ifndef CORE_HEADER_GL_PROGRAM_GUARD
+#define CORE_HEADER_GL_PROGRAM_GUARD
 
 #include "glad/gl.hpp"
-#include <algorithm>
+#include <utility>
 
 namespace core{
 
@@ -19,7 +19,7 @@ namespace core{
 			GLchar*    what() noexcept{return reason;}
 
 		public:
-			GLuint       id() noexcept{return program_id;};
+			GLuint id() noexcept{return program_id;};
 
 			void link() {
 				glLinkProgram(program_id);

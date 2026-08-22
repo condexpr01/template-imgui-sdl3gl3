@@ -1,6 +1,6 @@
 
-#ifndef CORE_HEADER_FRAMEBUFFER_GRUAD
-#define CORE_HEADER_FRAMEBUFFER_GRUAD
+#ifndef CORE_HEADER_GL_FRAMEBUFFER_GRUAD
+#define CORE_HEADER_GL_FRAMEBUFFER_GRUAD
 
 #include "glad/gl.hpp"
 
@@ -57,13 +57,13 @@ namespace core{
 				}
 			}
 
-			void frambuffer_texture(GLenum attachment, GLuint texture, GLuint level){
+			void frambuffer_texture(GLenum attachment, GLuint texture, GLuint level) noexcept{
 				bind();
 				glFramebufferTexture(target,attachment,texture,level);
 				unbind();
 			}
 
-			void frambuffer_renderbuffer(GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer){
+			void frambuffer_renderbuffer(GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) noexcept{
 				bind();
 				glFramebufferRenderbuffer(target,attachment,renderbuffertarget,renderbuffer);
 				unbind();

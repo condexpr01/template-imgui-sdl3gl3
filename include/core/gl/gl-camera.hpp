@@ -1,5 +1,5 @@
-#ifndef CORE_HEADER_CAMERA_GUARD
-#define CORE_HEADER_CAMERA_GUARD
+#ifndef CORE_HEADER_GL_CAMERA_GUARD
+#define CORE_HEADER_GL_CAMERA_GUARD
 
 #include <glm/gtc/quaternion.hpp>
 
@@ -13,11 +13,11 @@ namespace core{
 			glm::vec3 up_pos     = pos + glm::vec3{0,1,0};
 
 		public:
-			glm::mat4 look_at(){
+			glm::mat4 look_at() noexcept{
 				return glm::lookAt(pos,center_pos,up_pos-pos);
 			}
 
-			glm::mat4 look_at(glm::vec3 eye,glm::vec3 center,glm::vec3 up){
+			glm::mat4 look_at(glm::vec3 eye,glm::vec3 center,glm::vec3 up) noexcept{
 				pos = eye;
 				center_pos = center;
 				up_pos = eye + up;
@@ -26,7 +26,7 @@ namespace core{
 			}
 
 			//自由视角更新姿态，但自动roll以保持right向量平行于xz平面
-			void auto_roll_rotate(float dyaw, float dpitch) {
+			void auto_roll_rotate(float dyaw, float dpitch) noexcept{
 
 				glm::vec3 up{up_pos - pos};
 				glm::vec3 front{center_pos - pos};
@@ -78,7 +78,7 @@ namespace core{
 			//顺序: dyaw -> dpitch -> droll
 			//使用局部的坐标系, 无万向锁
 			//正：顺时针,负:逆时针
-			void rotate(float dyaw, float dpitch, float droll) {
+			void rotate(float dyaw, float dpitch, float droll) noexcept {
 
 				glm::vec3 up{up_pos - pos};
 				glm::vec3 front{center_pos - pos};
@@ -116,7 +116,7 @@ namespace core{
 			}
 
 			//limit in (-pi/2,pi/2)
-			void limit_rotate(float dyaw, float dpitch, float limit_angle) {
+			void limit_rotate(float dyaw, float dpitch, float limit_angle)noexcept{
 
 				glm::vec3 up{up_pos - pos};
 				glm::vec3 front{center_pos - pos};
@@ -174,7 +174,7 @@ namespace core{
 			}
 
 
-			void translate(float x, float y,float nagtive_z){
+			void translate(float x, float y,float nagtive_z) noexcept{
 				glm::vec3 front = glm::normalize(center_pos - pos);
 				glm::vec3 up    = glm::normalize(up_pos - pos);
 				glm::vec3 right = glm::normalize(glm::cross(up,-front));

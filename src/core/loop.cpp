@@ -1,7 +1,7 @@
 #include "core.hpp"
-#include "debug.hpp"
+#include "gl-debug.hpp"
 
-#include "frame-dump.hpp"
+#include "gl-frame-dump.hpp"
 
 /*
 struct ubo_struct{
@@ -20,9 +20,9 @@ class prepare{
 		void all(core::sdl_event_ctx &ctx){
 			set_up_current_ctx(ctx);
 
-			//set_up_gl_capabilities(ctx);
-			//set_up_gl_objects(ctx);
-			//set_up_gl_program(ctx);
+			set_up_gl_capabilities(ctx);
+			set_up_gl_objects(ctx);
+			set_up_gl_program(ctx);
 		}
 };
 
@@ -207,9 +207,9 @@ void frame::imgui_window(core::sdl_event_ctx &ctx){
 	}
 	ImGui::End();
 
+	ImGui::ShowDemoWindow();
 	ImPlot3D::ShowDemoWindow();
 	ImPlot::ShowDemoWindow();
-	ImGui::ShowDemoWindow();
 
 	ImGui::EndFrame();
 }
@@ -241,11 +241,9 @@ void frame::init_frame(core::sdl_event_ctx &ctx){
 	glClearStencil(0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-	#if 0
-	int w,h;
-	SDL_GetWindowSize(ctx.swm.window,&w,&h);
-	ctx.projection = glm::perspective(glm::radians(45.f),(float)w/h,100.f,0.1f);
-	#endif
+	//int w,h;
+	//SDL_GetWindowSize(ctx.swm.window,&w,&h);
+	//ctx.projection = glm::perspective(glm::radians(45.f),(float)w/h,100.f,0.1f);
 }
 
 void frame::render_frame(core::sdl_event_ctx &ctx){
