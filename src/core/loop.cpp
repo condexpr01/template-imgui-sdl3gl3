@@ -1,13 +1,14 @@
 #include "core.hpp"
 #include "gl-debug.hpp"
 
-#include "gl-frame-dump.hpp"
+//#include "gl-frame-dump.hpp"
 
 /*
 struct ubo_struct{
 	glm::mat4 mvp;       //64[16]
 }ubo_data;
 */
+
 
 class prepare{
 	public:
@@ -20,9 +21,9 @@ class prepare{
 		void all(core::sdl_event_ctx &ctx){
 			set_up_current_ctx(ctx);
 
-			set_up_gl_capabilities(ctx);
-			set_up_gl_objects(ctx);
-			set_up_gl_program(ctx);
+			//set_up_gl_capabilities(ctx);
+			//set_up_gl_objects(ctx);
+			//set_up_gl_program(ctx);
 		}
 };
 
@@ -100,19 +101,21 @@ void prepare::set_up_current_ctx(core::sdl_event_ctx &ctx){
 	ctx.running = true;
 }
 
+
 void frame::handle_events(core::sdl_event_ctx &ctx){
 
 	while(SDL_PollEvent(&ctx.e)){
-		ImGui_ImplSDL3_ProcessEvent(&ctx.e);
-
 		if (ctx.e.type == SDL_EVENT_QUIT){ctx.running = false;}
 
 		do{//change running state in main window
-			if(ctx.e.window.windowID != SDL_GetWindowID(ctx.swm.window))break;
+			if (ctx.e.window.windowID != SDL_GetWindowID(ctx.swm.window))break;
 
 			if (ctx.e.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED){ctx.running = false;}
 			if (ctx.e.type == SDL_EVENT_KEY_DOWN && ctx.e.key.key == SDLK_ESCAPE){ctx.running = false;}
 		}while(false);
+
+		ImGui_ImplSDL3_ProcessEvent(&ctx.e);
+
 	}
 
 	#if 0
@@ -165,7 +168,6 @@ void frame::handle_events(core::sdl_event_ctx &ctx){
 
 
 void frame::draw_scene(core::sdl_event_ctx &ctx){
-
 	//debug
 	core::debug_error();
 }
@@ -231,19 +233,28 @@ void frame::draw_ui(core::sdl_event_ctx &ctx){
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	ImGuiIO& io = ImGui::GetIO();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+		SDL_GL_MakeCurrent(ctx.swm.window, ctx.sgcm.gl_ctx);
+	}
 }
 
 void frame::init_frame(core::sdl_event_ctx &ctx){
 
 	//clear
-	glClearColor(1.0f,1.0f,1.0f,1.0f);
+	glClearColor(0.0f,0.0f,0.0f,0.0f);
 	glClearDepth(0.f);
 	glClearStencil(0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-	//int w,h;
-	//SDL_GetWindowSize(ctx.swm.window,&w,&h);
-	//ctx.projection = glm::perspective(glm::radians(45.f),(float)w/h,100.f,0.1f);
+	#if 0
+	int w,h;
+	SDL_GetWindowSize(ctx.swm.window,&w,&h);
+	ctx.projection = glm::perspective(glm::radians(45.f),(float)w/h,100.f,0.1f);
+	#endif
 }
 
 void frame::render_frame(core::sdl_event_ctx &ctx){
@@ -251,6 +262,7 @@ void frame::render_frame(core::sdl_event_ctx &ctx){
 	#if 1
 		if(!SDL_GL_SwapWindow(ctx.swm.window)){
 			ctx.running = false;
+			ctx.status = false;
 			ctx.reason = "[prepare::render_frame]SDL_GL_SwapWindow";
 			return;
 		}
@@ -270,7 +282,7 @@ void frame::render_frame(core::sdl_event_ctx &ctx){
 }
 
 //call top in loop
-void core::sdl_event_manager::loop() noexcept{
+void core::sdl_event_manager::loop() {
 	prepare prepare;
 	frame frame;
 
@@ -281,4 +293,5 @@ void core::sdl_event_manager::loop() noexcept{
 	}
 
 }
+
 

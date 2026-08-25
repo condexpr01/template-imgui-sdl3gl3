@@ -7,7 +7,12 @@ void app(int argc, char **argv){
 	core::sdl_ctx_manager scm{};
 	if(!scm.is_ok()){throw std::runtime_error{scm.what()};}
 
-	core::sdl_window_manager swm{"",1024,1024,SDL_WINDOW_OPENGL};
+	core::sdl_window_manager swm{"",1024,1024,SDL_WINDOW_OPENGL
+		//| SDL_WINDOW_RESIZABLE
+		//| SDL_WINDOW_BORDERLESS
+		//| SDL_WINDOW_TRANSPARENT
+	};
+
 	if(!swm.is_ok()){throw std::runtime_error{swm.what()};}
 
 	core::sdl_gl_ctx_manager sgcm{swm.window};
@@ -18,6 +23,17 @@ void app(int argc, char **argv){
 
 	core::sdl_event_manager sem{swm,sgcm,sgicm};
 	core::set_up_sdl_event_ctx_datas(argc,argv,sem.get_ctx());
+
+	SDL_SetWindowHitTest(sem.get_ctx().swm.window,
+		[](SDL_Window *window, const SDL_Point *area, void *data) -> SDL_HitTestResult{
+			if (data && *static_cast<bool*>(data)){
+				return SDL_HITTEST_DRAGGABLE;
+			}else{
+				return SDL_HITTEST_NORMAL;
+			}
+		},
+		&sem.get_ctx().window_draggable
+	);
 
 	sem.loop();
 	if(!sem.is_ok()){throw std::runtime_error{sem.what()};}

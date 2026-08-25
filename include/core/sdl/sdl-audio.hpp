@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <vector>
 #include <string>//string for copy SDLError
+#include <numbers>
 
 namespace core{
 
@@ -320,11 +321,13 @@ namespace core{
 		//methods
 		public:
 			void put_buf_data(const void *data, size_t bytes){
-				if(!data)buf.clear();
-				if(bytes==0)buf.clear();
+				if(!data || bytes==0){buf.resize(0);return;}
+
+				std::vector<uint8_t> temp(static_cast<const uint8_t*>(data),
+						static_cast<const uint8_t*>(data) + bytes);
 
 				buf.resize(bytes);
-				memcpy(buf.data(), data, bytes);
+				memcpy(buf.data(), temp.data(), bytes);
 			}
 
 			//bind the stream to default plaback
@@ -701,8 +704,8 @@ namespace core{
 
 			recording_audio(callback_on_time_audio &other) = delete;
 			recording_audio(callback_on_time_audio &&other) = delete;
-			recording_audio &operator=(recording_audio  &other) = delete;
-			recording_audio &operator=(recording_audio &&other) = delete;
+			recording_audio &operator=(callback_on_time_audio  &other) = delete;
+			recording_audio &operator=(callback_on_time_audio &&other) = delete;
 
 			//delete the stream
 			~recording_audio() noexcept{
@@ -742,7 +745,8 @@ namespace core{
 		Uint8 *wav_buf_p = nullptr;
 		Uint32 wav_len{};
 
-		if(!SDL_LoadWAV(path.c_str(),&wav_spec, &wav_buf_p, &wav_len)){
+		std::u8string pathu8str = path.u8string();
+		if(!SDL_LoadWAV(reinterpret_cast<const char*>(pathu8str.c_str()),&wav_spec, &wav_buf_p, &wav_len)){
 			SDL_free(wav_buf_p);
 			return false;
 		}

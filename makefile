@@ -1,7 +1,9 @@
 all:
-	-cmake -B build -G Ninja && cmake --build build
-	-cp build/compile_commands.json src/core
-	-cp build/compile_commands.json src/imgui
+	cmake -S . -B build -G Ninja && cmake --build build
+
+cross-mingw:
+	#cross compile on linux:
+	cmake -S . -B build -G Ninja -DCROSS_MINGW=ON && cmake --build build
 
 clean:
 	-rm -rf build
@@ -9,9 +11,6 @@ clean:
 	-rm -rf .cache
 	-rm -rf src/imgui/.cache
 	-rm -rf src/core/.cache
-	
-	-rm -rf src/imgui/compile_commands.json
-	-rm -rf src/core/compile_commands.json
 
 run:
 	./build/prog

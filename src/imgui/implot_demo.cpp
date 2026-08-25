@@ -2430,7 +2430,7 @@ void Demo_ItemStylingAndSpec() {
         spec.Marker = ImPlotMarker_Square;
         spec.MarkerSize = 6;
         spec.Stride = sizeof(ImVec2);
-        spec.Flags = ImPlotItemFlags_NoLegend | ImPlotLineFlags_Shaded;
+        spec.Flags = ImPlotItemFlags_NoLegend | (ImPlotItemFlags_)ImPlotLineFlags_Shaded;
         ImPlot::PlotLine("Line 1", &data1[0].x, &data1[0].y, 20, spec);
 
         // 2. Inline using ImPlotProp,value pairs (order does NOT matter):
@@ -2442,7 +2442,7 @@ void Demo_ItemStylingAndSpec() {
             ImPlotProp_Marker, ImPlotMarker_Diamond,
             ImPlotProp_Size, 6,
             ImPlotProp_Stride, sizeof(ImVec2),
-            ImPlotProp_Flags, ImPlotItemFlags_NoLegend | ImPlotLineFlags_Shaded
+            ImPlotProp_Flags, ImPlotItemFlags_NoLegend | (ImPlotItemFlags_)ImPlotLineFlags_Shaded
         });
 
         ImPlot::EndPlot();

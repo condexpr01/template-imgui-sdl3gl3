@@ -166,9 +166,9 @@ namespace core{
 				imnodes_ctx = ImNodes::CreateContext();
 
 				if (!imgui_ctx 
-						//|| !implot_ctx 
-						//|| !implot3d_ctx 
-						//|| !imnodes_ctx
+						|| !implot_ctx 
+						|| !implot3d_ctx 
+						|| !imnodes_ctx
 				   ){
 					status = false;
 					reason = "[sdl_gl_imgui_ctx_manager]CreateContext";
@@ -189,9 +189,6 @@ namespace core{
 
 				status = true;
 
-				//default font
-				std::filesystem::path font_path = std::filesystem::path{SDL_GetBasePath()}
-					/ "fonts"/ "SarasaUiSC-Bold.ttf";
 
 				ImFontConfig f{};
 				//f.Flags = ImFontFlags_NoLoadError;
@@ -210,6 +207,10 @@ namespace core{
 					io.FontDefault = font;
 				}
 				#else
+				//default font
+				std::filesystem::path font_path = std::filesystem::path{SDL_GetBasePath()}
+					/ "fonts"/ "SarasaUiSC-Bold.ttf";
+
 				if (std::filesystem::exists(font_path)){
 					font = (*io.Fonts).AddFontFromFileTTF(font_path.c_str(),fontsize,&f,nullptr);
 					io.FontDefault = font;
@@ -218,7 +219,6 @@ namespace core{
 
 				io.IniFilename = nullptr;
 				io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-				//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 			}
 
 			~sdl3_gl3_imgui_ctx_manager() noexcept{
@@ -322,7 +322,7 @@ namespace core{
 			}
 
 			~sdl_window_manager() noexcept{
-				if(!window){SDL_DestroyWindow(window);}
+				if(window){SDL_DestroyWindow(window);}
 			}
 	};
 
@@ -343,17 +343,19 @@ namespace core{
 		//datas
 		std::filesystem::path png_path;
 
+		bool window_draggable = false;
+
 		//kbd
 		core::keyboard keyboard{};
 
 		//audio
-		core::realtime_audio realtime_audio{};
-		core::callback_on_time_audio callback_on_time_audio{};
-		core::recording_audio recording_audio{};
+		//core::realtime_audio realtime_audio{};
+		//core::callback_on_time_audio callback_on_time_audio{};
+		//core::recording_audio recording_audio{};
 
 		//capture
-		core::texture frame_tex{GL_TEXTURE_2D};
-		core::capture_device capture_device{};
+		//core::texture frame_tex{GL_TEXTURE_2D};
+		//core::capture_device capture_device{};
 
 		//MVP
 		//glm::mat4 model{1.f};
@@ -388,7 +390,7 @@ namespace core{
 		public:
 			sdl_event_ctx &get_ctx() noexcept{return ctx;}
 
-			void loop() noexcept;
+			void loop();
 
 		//RAII
 		public:

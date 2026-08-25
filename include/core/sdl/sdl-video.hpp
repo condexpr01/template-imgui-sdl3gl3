@@ -4,6 +4,7 @@
 #include <SDL3/SDL.h>
 #include <ostream>
 #include <unordered_map>
+#include <array>
 
 namespace{
 

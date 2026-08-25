@@ -42,7 +42,7 @@ namespace core{
 			}
 
 			~renderbuffer() noexcept{
-				if (robj){glDeleteFramebuffers(1,&robj);}
+				if (robj){glDeleteRenderbuffers(1,&robj);}
 			}
 
 			renderbuffer(renderbuffer &rb) = delete;

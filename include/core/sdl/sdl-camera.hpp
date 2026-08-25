@@ -88,6 +88,8 @@ namespace core{
 
 			void close_capture() noexcept{
 				if(cur_capt)SDL_CloseCamera(cur_capt);
+
+				cur_capt = nullptr;
 			}
 
 			//acquire frame
@@ -161,6 +163,7 @@ namespace core{
 			case SDL_COLORSPACE_BT709_FULL: return "SDL_COLORSPACE_BT709_FULL";
 			case SDL_COLORSPACE_BT2020_LIMITED: return "SDL_COLORSPACE_BT2020_LIMITED";
 			case SDL_COLORSPACE_BT2020_FULL: return "SDL_COLORSPACE_BT2020_FULL";
+			default: return "";//Unknown
 		}
 	}
 
@@ -169,6 +172,7 @@ namespace core{
 			case SDL_CAMERA_PERMISSION_STATE_DENIED:return "SDL_CAMERA_PERMISSION_STATE_DENIED";
 			case SDL_CAMERA_PERMISSION_STATE_PENDING:return "SDL_CAMERA_PERMISSION_STATE_PENDING";
 			case SDL_CAMERA_PERMISSION_STATE_APPROVED:return "SDL_CAMERA_PERMISSION_STATE_APPROVED";
+			default: return "";//Unknown
 		}
 	}
 
@@ -177,7 +181,9 @@ namespace core{
 			case SDL_CAMERA_POSITION_UNKNOWN: return "SDL_CAMERA_POSITION_UNKNOWN";
 			case SDL_CAMERA_POSITION_FRONT_FACING: return "SDL_CAMERA_POSITION_FRONT_FACING";
 			case SDL_CAMERA_POSITION_BACK_FACING: return "SDL_CAMERA_POSITION_BACK_FACING";
+			default: return "";//Unknown
 		}
+
 	}
 
 	template <typename LogT>

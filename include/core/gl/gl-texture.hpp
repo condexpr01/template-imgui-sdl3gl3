@@ -124,15 +124,21 @@ namespace core{
 				}
 
 				//SDL_PIXELFORMAT32会自己调整和字节序匹配
-				if (texture_surface->format != SDL_PIXELFORMAT_RGBA32){
+				if ((*texture_surface).format != SDL_PIXELFORMAT_RGBA32){
 					SDL_Surface *old_texture_surface = texture_surface;
 					texture_surface = SDL_ConvertSurface(texture_surface,SDL_PIXELFORMAT_RGBA32);
-					SDL_free(old_texture_surface);
+					SDL_DestroySurface(old_texture_surface);
+				}
+
+				if(target == 0){
+					target = (*this).target;
+				}else{
+					(*this).target = target;
 				}
 
 				bind();
 				glTexImage2D(target,
-						0,GL_RGBA,texture_surface->w,texture_surface->h,0,
+						0,GL_RGBA,(*texture_surface).w,(*texture_surface).h,0,
 						GL_RGBA,GL_UNSIGNED_BYTE,(*texture_surface).pixels);
 				unbind();
 

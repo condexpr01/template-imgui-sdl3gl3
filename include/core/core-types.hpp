@@ -17,11 +17,11 @@ namespace core {
 	//pos normal tangent uv rgba
 	template <typename posT, typename colorT>
 	struct vertex{
-		position<posT> pos;
-		position<posT> normal;
-		position<posT> tangent;
-		tex_pos_t<posT> tex_pos;
-		color<colorT> color;
+		struct position<posT> pos;
+		struct position<posT> normal;
+		struct position<posT> tangent;
+		struct tex_pos_t<posT> tex_pos;
+		struct color<colorT> color;
 	};
 
 	#define GLVERTEX_posT   GL_FLOAT

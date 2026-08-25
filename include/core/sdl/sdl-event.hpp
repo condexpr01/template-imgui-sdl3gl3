@@ -869,6 +869,8 @@ namespace core{
 							e.edit_candidates.windowID,
 							e.edit_candidates.horizontal?"horizontal":"vertical"
 						);
+						
+						count++;
 					}
 
 					break;
@@ -975,7 +977,7 @@ namespace core{
 				if (t == SDL_EVENT_JOYSTICK_BUTTON_DOWN || t == SDL_EVENT_JOYSTICK_BUTTON_UP){
 					Log("[log_sdl_event]%s button:%d down:%d joystickID:%d",
 						(*element).second,
-						e.jbutton.button,e.button.down,
+						e.jbutton.button,e.jbutton.down,
 						e.jbutton.which
 					);
 
@@ -1047,6 +1049,8 @@ namespace core{
 						e.gsensor.data[2],
 						e.gsensor.which
 					);
+
+					break;
 				}
 
 				if (t == SDL_EVENT_AUDIO_DEVICE_ADDED
