@@ -321,6 +321,8 @@ namespace core{
 		//methods
 		public:
 			void put_buf_data(const void *data, size_t bytes){
+				if(!status)return;
+
 				if(!data || bytes==0){buf.resize(0);return;}
 
 				std::vector<uint8_t> temp(static_cast<const uint8_t*>(data),

@@ -218,7 +218,9 @@ namespace core{
 				#endif
 
 				io.IniFilename = nullptr;
-				io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+				//when sudo, ImGuiConfigFlags_ViewportsEnable may cause crash, so disable it
+				io.ConfigFlags &= ~ImGuiConfigFlags_ViewportsEnable;
 			}
 
 			~sdl3_gl3_imgui_ctx_manager() noexcept{

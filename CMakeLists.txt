@@ -1,5 +1,5 @@
 # debug
-if(ON)
+if(OFF)
 	set(CMAKE_CXX_COMPILER clang++)
 	set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 	set(CMAKE_BUILD_TYPE Debug)
@@ -125,14 +125,20 @@ if(NOT SDL3_FOUND)
 	FetchContent_Declare(SDL3
 		GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
 		#GIT_REPOSITORY git@github.com:libsdl-org/SDL.git
-		GIT_TAG release-3.4.14)
+		#GIT_REPOSITORY file:///home/condexpr01/Desktop/fakerepos/clone/SDL/.git
+		GIT_TAG release-3.4.8
+		)
+
 	FetchContent_MakeAvailable(SDL3)
 endif()
 
 # sdl related
 if(WIN32)
 	if(MSVC)
-		target_link_options(${PROJECT_NAME} PRIVATE /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup)
+		target_link_options(
+			${PROJECT_NAME} 
+			PRIVATE /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup
+		)
 	else()
 		target_link_options(${PROJECT_NAME} PRIVATE -static -mwindows)
 	endif()
@@ -149,8 +155,11 @@ if(NOT glm_FOUND)
 	FetchContent_Declare(glm
 		GIT_REPOSITORY https://github.com/g-truc/glm.git
 		#GIT_REPOSITORY git@github.com:g-truc/glm.git
-		GIT_TAG 1.0.3)
+		#GIT_REPOSITORY file:///home/condexpr01/Desktop/fakerepos/clone/glm/.git
+		GIT_TAG 1.0.3
+		)
 	FetchContent_MakeAvailable(glm)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${glm_SOURCE_DIR})
 endif()
 
 # check variables in the end
