@@ -164,7 +164,7 @@ namespace core{
 				}
 			}
 
-			float get_volumn() noexcept{
+			float get_volume() noexcept{
 				if(!status || realtime_audio_stream.empty())return std::nan("NaN");
 				return SDL_GetAudioStreamGain(realtime_audio_stream[0]);
 			}
@@ -177,7 +177,7 @@ namespace core{
 				return dst_spec;
 			}
 
-			void volumn(float gain) noexcept{
+			void volume(float gain) noexcept{
 				if(!status)return;
 
 				for(auto &&e : realtime_audio_stream){
@@ -418,11 +418,11 @@ namespace core{
 				}
 			}
 
-			float get_volumn() noexcept{
+			float get_volume() noexcept{
 				return SDL_GetAudioStreamGain(audio_stream);
 			}
 
-			void volumn(float gain) noexcept{
+			void volume(float gain) noexcept{
 				if(!status)return;
 
 				if(!SDL_SetAudioStreamGain(audio_stream,gain)){
@@ -663,11 +663,11 @@ namespace core{
 				}
 			}
 
-			float get_volumn() noexcept{
+			float get_volume() noexcept{
 				return SDL_GetAudioStreamGain(audio_stream);
 			}
 
-			void volumn(float gain) noexcept{
+			void volume(float gain) noexcept{
 				if(!status)return;
 
 				if(!SDL_SetAudioStreamGain(audio_stream,gain)){
