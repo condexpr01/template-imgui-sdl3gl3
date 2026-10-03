@@ -62,7 +62,10 @@ namespace core{
 			}
 
 			~buffer_object() noexcept{
-				if(bobj_id) glDeleteBuffers(1, &bobj_id);
+				if(bobj_id){
+					glDeleteBuffers(1, &bobj_id);
+					bobj_id = 0;
+				}
 			}
 
 	};
@@ -148,7 +151,10 @@ namespace core{
 			}
 
 			~vertex_array() noexcept{
-				if(va_id) glDeleteVertexArrays(1,&va_id);
+				if(va_id) {
+					glDeleteVertexArrays(1,&va_id);
+					va_id = 0;
+				}
 			}
 
 	};

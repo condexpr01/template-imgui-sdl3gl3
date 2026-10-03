@@ -27,6 +27,8 @@ namespace core{
 			GLuint id() noexcept{return texture_id;}
 			GLenum get_target() noexcept{return target;}
 
+			void set_target(GLenum t) noexcept{target = t;}
+
 			void bind() noexcept{
 				glBindTexture(target,texture_id);
 			}
@@ -162,7 +164,10 @@ namespace core{
 			}
 
 			void release()noexcept{
-				if(texture_id)glDeleteTextures(1,&texture_id);
+				if(texture_id){
+					glDeleteTextures(1,&texture_id);
+					texture_id = 0;
+				}
 			}
 
 			void take(texture &other) noexcept{
@@ -178,11 +183,17 @@ namespace core{
 
 		//RAII
 		public:
+			texture() noexcept{
+				glGenTextures(1,&texture_id);
+				status = GL_FALSE;
+			}
+
 			texture(GLenum target) noexcept{
 				glGenTextures(1,&texture_id);
 				status = GL_FALSE;
 				(*this).target = target;
 			}
+
 			//防止重复析构
 			texture(texture &) = delete;
 			texture(texture &&other)noexcept {take(other);}
