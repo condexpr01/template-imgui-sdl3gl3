@@ -65,6 +65,8 @@ namespace core{
 				bind();
 				glTexImage1D(target,level,internalformat,width,border,format,type,pixels);
 				unbind();
+
+				status = GL_TRUE;
 			}
 
 			void sub_image1d(GLint level,
@@ -74,6 +76,8 @@ namespace core{
 				bind();
 				glTexSubImage1D(target,level,xoffset,width,format,type,pixels);
 				unbind();
+
+				status = GL_TRUE;
 			}
 
 			//2d
@@ -84,6 +88,8 @@ namespace core{
 				bind();
 				glTexImage2D(target,level,internalformat,width,height,border,format,type,pixels);
 				unbind();
+
+				status = GL_TRUE;
 			}
 
 			void sub_image2d(GLint level,
@@ -93,6 +99,8 @@ namespace core{
 				bind();
 				glTexSubImage2D(target,level,xoffset,yoffset,width,height,format,type,pixels);
 				unbind();
+
+				status = GL_TRUE;
 			}
 
 			//3d
@@ -103,6 +111,8 @@ namespace core{
 				bind();
 				glTexImage3D(target,level,internalformat,width,height,depth,border,format,type,pixels);
 				unbind();
+
+				status = GL_TRUE;
 			}
 
 			void sub_image3d(GLint level,
@@ -114,6 +124,8 @@ namespace core{
 				glTexSubImage3D(target,level,xoffset,yoffset,zoffset,
 						width,height,depth,format,type,pixels);
 				unbind();
+
+				status = GL_TRUE;
 			}
 
 			//sdl3 load png
@@ -145,6 +157,54 @@ namespace core{
 				unbind();
 
 				SDL_DestroySurface(texture_surface);
+
+				status = GL_TRUE;
+			}
+
+			void png_io_image2d_with_target(const void* mem, size_t size, GLuint target = 0)noexcept{
+
+				if (!mem || size == 0){
+					status = GL_FALSE;
+					reason = "[png_image2d] empty mem";
+					return;
+				}
+
+				SDL_IOStream *pngio = SDL_IOFromConstMem(mem, size);
+				if(!pngio){
+					status = GL_FALSE;
+					reason = "[png_image2d] SDL_IOFromConstMem";
+					return;
+				}
+
+				SDL_Surface *texture_surface = SDL_LoadPNG_IO(pngio, true);
+				if (!texture_surface){
+					status = GL_FALSE;
+					reason = "[png_image2d] SDL_LoadPNG_IO";
+					return;
+				}
+
+				//SDL_PIXELFORMAT32会自己调整和字节序匹配
+				if ((*texture_surface).format != SDL_PIXELFORMAT_RGBA32){
+					SDL_Surface *old_texture_surface = texture_surface;
+					texture_surface = SDL_ConvertSurface(texture_surface,SDL_PIXELFORMAT_RGBA32);
+					SDL_DestroySurface(old_texture_surface);
+				}
+
+				if(target == 0){
+					target = (*this).target;
+				}else{
+					(*this).target = target;
+				}
+
+				bind();
+				glTexImage2D(target,
+						0,GL_RGBA,(*texture_surface).w,(*texture_surface).h,0,
+						GL_RGBA,GL_UNSIGNED_BYTE,(*texture_surface).pixels);
+				unbind();
+
+				SDL_DestroySurface(texture_surface);
+
+				status = GL_TRUE;
 			}
 
 			void parameteri(GLint pname, GLint param) noexcept{
